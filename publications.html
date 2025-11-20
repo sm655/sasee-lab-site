@@ -415,5 +415,48 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 </script>
+
+<script>
+  // Automatically bold Sonya N. Martin's name in all citations on this page
+  (function () {
+    const variants = ["Martin, S.N.", "Martin, S. N.", "Martin, S."];
+
+    function highlightName(variant) {
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        null
+      );
+      const textNodes = [];
+      let node;
+
+      while ((node = walker.nextNode())) {
+        if (!node.nodeValue.includes(variant)) continue;
+        if (node.parentNode && node.parentNode.nodeName === "STRONG") continue;
+        textNodes.push(node);
+      }
+
+      textNodes.forEach((textNode) => {
+        const parts = textNode.nodeValue.split(variant);
+        const frag = document.createDocumentFragment();
+
+        parts.forEach((part, index) => {
+          if (part) {
+            frag.appendChild(document.createTextNode(part));
+          }
+          if (index < parts.length - 1) {
+            const strong = document.createElement("strong");
+            strong.textContent = "Martin, S.N.";
+            frag.appendChild(strong);
+          }
+        });
+
+        textNode.parentNode.replaceChild(frag, textNode);
+      });
+    }
+
+    variants.forEach(highlightName);
+  })();
+</script>
 </body>
 </html>
